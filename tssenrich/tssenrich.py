@@ -42,12 +42,6 @@ class MissingSAMToolsError(Error):
     pass
 
 
-class MemoryLimitError(Error):
-    """Memory limit error"""
-    
-    pass
-
-
 
 
 # Functions ====================================================================
@@ -218,6 +212,7 @@ def generate_coverage_values(bedcov: bytes):
     tuple
         tss center depth and flank depth for a tss
     """
+
     for tss, intervals in itertools.groupby(
         sorted(
             (
