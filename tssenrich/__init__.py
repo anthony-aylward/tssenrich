@@ -1,5 +1,11 @@
 """Calculate TSS enrichment for ATAC-seq data
 
+definition of TSS enrichment score:
+https://www.encodeproject.org/data-standards/terms/
+
+ENCODE standards:
+https://www.encodeproject.org/atac-seq/
+
 refFlat data source:
 http://hgdownload.cse.ucsc.edu/goldenpath/hg38/database/
 http://hgdownload.cse.ucsc.edu/goldenpath/hg19/database/
