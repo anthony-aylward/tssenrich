@@ -18,6 +18,8 @@ Functions
     tss_flanks_bed_tool
     samtools_bedcov
     generate_coverage_values
+    calculate_enrichment
+    tss_enrichment
 """
 
 from tssenrich.tssenrich import (
