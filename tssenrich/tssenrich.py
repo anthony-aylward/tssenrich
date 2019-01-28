@@ -11,6 +11,7 @@
 
 import argparse
 import gzip
+import itertools
 import os
 import os.path
 import pybedtools
@@ -176,7 +177,7 @@ def samtools_bedcov(
             stdout=subprocess.PIPE,
             stderr=log_file
         ) as bedcov:
-            return bedcov.communicate()[0].decode()
+            return bedcov.communicate()[0]
 
 
 def parse_arguments():
@@ -236,13 +237,25 @@ def main():
             generate_tss_flanks(generate_tss(genome=args.genome))
         )
     )
-    coverage = samtools_bedcov(
-        tss_flanks.fn,
-        args.bam,
-        memory_gb=args.memory,
-        threads=args.processes,
-        mapping_quality=args.mapping_quality,
-        samtools_path=args.samtools_path,
-        log=args.log
-    )
-    print(coverage.splitlines()[:10])
+    for tss, coverage in itertools.groupby(
+        sorted(
+            (
+                (chrom, int(start), int(end), int(tss), int(cov))
+                for chrom, start, end, tss, cov in (
+                    line.split() for line in samtools_bedcov(
+                        tss_flanks.fn,
+                        args.bam,
+                        memory_gb=args.memory,
+                        threads=args.processes,
+                        mapping_quality=args.mapping_quality,
+                        samtools_path=args.samtools_path,
+                        log=args.log
+                    ).decode().splitlines()
+                ),
+            ),
+            key=lambda interval: (interval[0], interval[3])
+        ),
+        key=lambda interval: (interval[0], interval[3])
+    ):
+        print(tuple(coverage))
+        
