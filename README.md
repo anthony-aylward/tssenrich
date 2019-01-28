@@ -32,7 +32,7 @@ optional arguments:
   --mapping-quality <int>
                         ignore reads with mapping quality below the given value [0]
   --samtools-path <path/to/samtools>
-                        path to an alternate samtools executable [/usr/local/bin/samtools]
+                        path to an alternate samtools executable
   --log <path/to/log.txt>
                         path to log file
 
