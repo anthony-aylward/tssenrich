@@ -137,12 +137,12 @@ def samtools_bedcov(
     samtools_path: str = SAMTOOLS_PATH
 ):
     
-    if not bedtools_path:
-        raise MissingBEDToolsError(
-            '''bedtools was not found! Please provide the `bedtools_path`
-            parameter to bedtools_intersect(), or set the `BEDTOOLS_PATH`
-            environment variable, or make sure `bedtools` is installed and
-            can be found via the `PATH` environment variable.
+    if not samtools_path:
+        raise MissingSAMToolsError(
+            '''samtools was not found! Please provide the `samtools_path`
+            parameter, or set the `SAMTOOLS_PATH` environment variable, or make
+            sure `samtools` is installed and can be found via the `PATH`
+            environment variable.
             '''
         )
 
