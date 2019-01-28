@@ -49,11 +49,11 @@ def generate_tss(genome='hg38'):
     ----------
     genome : str
         Genome build from which to draw TSS's. Must be either 'hg38' or 'hg19'.
-    
+
     Yields
     ------
     tuple
-        the chromosome (str) and position (int) of a TSS 
+        the chromosome (str) and position (int) of a TSS
     """
 
     with gzip.open(
@@ -72,7 +72,7 @@ def generate_flanks(tss):
     ----------
     tss
         an iterable containing coordinates of TSS's
-    
+
     Yields
     ------
     tuple
@@ -92,7 +92,7 @@ def flanks_bed_str(flanks):
     ----------
     flanks
         coordinates of TSS flanks
-    
+
     Returns
     -------
     str
@@ -110,7 +110,7 @@ def flanks_bed_tool(flanks_str: str):
     ----------
     flanks_str
         string giving input BED file
-    
+
     Returns
     -------
     BedTool
