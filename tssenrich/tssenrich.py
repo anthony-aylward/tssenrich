@@ -13,6 +13,7 @@ import gzip
 import os.path
 import pybedtools
 import pysam
+import tempfile
 
 
 
@@ -81,6 +82,17 @@ def flanks_bed_tool(flanks):
     """
 
     return pybedtools.BedTool(
-        '\n'.join(' '.join(str(flank) for flank in flanks)) + '\n',
+        '\n'.join('\t'.join(str(flank) for flank in flanks)) + '\n',
         from_string=True
     ).sort()
+
+
+    def bedcov(flanks_path, bam_file_path, mapping_quality: int = 0):
+        with tempfile.TemporaryDirectory() as temp_dir_name:
+            sorted_path = os.path.join(temp_dir_name, 'sorted.bam')
+            pysam.sort('-o', sorted_path, bam_file_path)
+            return pysam.bedcov(
+                '-Q', str(mapping_quality),
+                flanks_path,
+                sorted_path
+            )
