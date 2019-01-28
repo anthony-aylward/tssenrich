@@ -182,7 +182,7 @@ def samtools_bedcov(
 
 
 def generate_coverage_values(bedcov: bytes):
-    for _, interval in itertools.groupby(
+    for _, intervals in itertools.groupby(
         sorted(
             (
                 (chrom, int(start), int(end), int(tss), int(cov))
@@ -194,7 +194,10 @@ def generate_coverage_values(bedcov: bytes):
         ),
         key=lambda interval: (interval[0], interval[3])
     ):
-        yield (interval[0][4] + interval[2][4]) / 200, interval[1][4],
+        lower_flank_cov, tss_cov, upper_flank_cov = tuple(
+            interval[4] for interval in intervals
+        )
+        yield tss_cov, (lower_flank_cov + upper_flank_cov) / 200
 
 
 def parse_arguments():
