@@ -115,7 +115,7 @@ def tss_flanks_bed_str(flanks):
     ) + '\n'
 
 
-def tss_flanks_bed_tool(flanks_str: str):
+def tss_flanks_bed_tool(flanks_str: str, temp_file_dir=None):
     """A BedTool representing the TSS flanks
 
     Parameters
@@ -129,6 +129,7 @@ def tss_flanks_bed_tool(flanks_str: str):
         the TSS flanks
     """
 
+    pybedtools.set_tempdir(temp_file_dir if temp_file_dir else '/tmp')
     return pybedtools.BedTool(flanks_str, from_string=True).sort()
 
 
@@ -139,7 +140,8 @@ def samtools_bedcov(
     threads: int = 1,
     mapping_quality: int = 0,
     samtools_path: str = SAMTOOLS_PATH,
-    log_file_path=None
+    log_file_path=None,
+    temp_file_dir=None
 ):
     """Apply samtools bedcov to a bed file & a bam file
 
@@ -177,7 +179,7 @@ def samtools_bedcov(
     
     if log_file_path:
         log_file = open(log_file_path, 'wb')
-    with tempfile.TemporaryDirectory() as temp_dir_name:
+    with tempfile.TemporaryDirectory(dir=temp_file_dir) as temp_dir_name:
         sorted_path = os.path.join(temp_dir_name, 'sorted.bam')
         with open(sorted_path, 'wb') as temp_sorted:
             subprocess.run(
@@ -263,7 +265,8 @@ def tss_enrichment(
     threads: int = 1,
     mapping_quality: int = 0,
     samtools_path: str = SAMTOOLS_PATH,
-    log_file_path=None
+    log_file_path=None,
+    temp_file_dir=None
 ):
     """Calculate TSS enrichment from ATAC-seq data
     
@@ -291,7 +294,8 @@ def tss_enrichment(
     """
     
     tss_flanks = tss_flanks_bed_tool(
-        tss_flanks_bed_str(generate_tss_flanks(generate_tss(genome=genome)))
+        tss_flanks_bed_str(generate_tss_flanks(generate_tss(genome=genome))),
+        temp_file_dir=temp_file_dir
     )
     return calculate_enrichment(
         generate_coverage_values(
@@ -302,7 +306,8 @@ def tss_enrichment(
                 threads=threads,
                 mapping_quality=mapping_quality,
                 samtools_path=samtools_path,
-                log_file_path=log_file_path
+                log_file_path=log_file_path,
+                temp_file_dir=temp_file_dir
             )
         )
     )
@@ -357,6 +362,11 @@ def parse_arguments():
         metavar='<path/to/log.txt>',
         help='path to log file'
     )
+    parser.add_argument(
+        '--tmp-dir',
+        metavar='<temp/file/dir/>',
+        help='directory to use for temporary files'
+    )
     return parser.parse_args()
 
 
@@ -370,6 +380,7 @@ def main():
             threads=args.processes,
             mapping_quality=args.mapping_quality,
             samtools_path=args.samtools_path,
-            log_file_path=args.log
+            log_file_path=args.log,
+            temp_file_dir=args.tmp_dir
         )
     )
