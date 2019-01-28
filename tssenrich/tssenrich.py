@@ -302,7 +302,7 @@ def main():
         threads=args.processes,
         mapping_quality=args.mapping_quality,
         samtools_path=args.samtools_path,
-        log=args.log
+        log_file_path=args.log
     )
     tss_depth, flank_depth = (
         sum(z) for z in zip(*generate_coverage_values(bedcov))
