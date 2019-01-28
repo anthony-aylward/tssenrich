@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name='tssenrich',
-    version='0.0.17',
+    version='0.0.18',
     author='Anthony Aylward',
     author_email='aaylward@eng.ucsd.edu',
     description='Calculate TSS enrichment for ATAC-seq data',
@@ -18,7 +18,7 @@ setuptools.setup(
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent"
     ],
-    install_requires=['pybedtools', 'pysam'],
+    install_requires=['pybedtools'],
     entry_points={
         'console_scripts': ['tssenrich=tssenrich.tssenrich:main',]
     },
