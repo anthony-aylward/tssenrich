@@ -251,7 +251,7 @@ def main():
                         samtools_path=args.samtools_path,
                         log=args.log
                     ).decode().splitlines()
-                ),
+                )
             ),
             key=lambda interval: (interval[0], interval[3])
         ),
