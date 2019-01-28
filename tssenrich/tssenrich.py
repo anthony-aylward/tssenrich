@@ -25,6 +25,13 @@ import tempfile
 
 SAMTOOLS_PATH = os.environ.get('SAMTOOLS_PATH', shutil.which('samtools'))
 
+ENCODE_STANDARDS = '''ENCODE standards:
+| Genome | Concerning | Acceptable | Ideal |
+| ------ | ---------- | ---------- | ----- |
+| hg19   | < 6        | 6 - 10     | > 10  |
+| hg38   | < 5        | 5 - 7      | > 7   |
+'''
+
 
 
 
@@ -226,7 +233,8 @@ def generate_coverage_values(bedcov: bytes):
         key=lambda interval: (interval[0], interval[3])
     ):
         print(tss)
-        print(tuple(intervals))
+        intervals = tuple(intervals)
+        print(intervals)
         lower_flank_cov, tss_cov, upper_flank_cov = tuple(
             interval[4] for interval in intervals
         )
@@ -235,7 +243,9 @@ def generate_coverage_values(bedcov: bytes):
 
 def parse_arguments():
     parser = argparse.ArgumentParser(
-        description = 'calculate TSS enrichment for ATAC-seq data'
+        description='calculate TSS enrichment for ATAC-seq data',
+        epilog=ENCODE_STANDARDS,
+        formatter_class=argparse.RawTextHelpFormatter
     )
     parser.add_argument(
         'bam',
@@ -303,4 +313,3 @@ def main():
         sum(z) for z in zip(*generate_coverage_values(bedcov))
     )
     print(tss_depth / flank_depth)
-        
