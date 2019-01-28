@@ -67,7 +67,7 @@ def generate_flanks(tss):
         yield chrom, pos + 900, pos + 1_000
 
 
-def flanks_str(flanks):
+def flanks_bed_str(flanks):
     return '\n'.join(
         '\t'.join(str(coord) for coord in flank) for flank in flanks
     ) + '\n'
