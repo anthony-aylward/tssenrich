@@ -229,7 +229,7 @@ def main():
     coverage = samtools_bedcov(
         tss_flanks.fn,
         args.bam,
-        memory_gb=args.float,
+        memory_gb=args.memory,
         threads=args.processes,
         mapping_quality=args.mapping_quality,
         samtools_path=args.samtools_path
