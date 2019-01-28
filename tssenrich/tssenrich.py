@@ -149,10 +149,10 @@ def samtools_bedcov(
             environment variable.
             '''
         )
-
-    with open(log, 'wb') as log_file, tempfile.TemporaryDirectory() as (
-        temp_dir_name
-    ):
+    
+    if log:
+        log_file = open(log, 'wb')
+    with tempfile.TemporaryDirectory() as temp_dir_name:
         sorted_path = os.path.join(temp_dir_name, 'sorted.bam')
         with open(sorted_path, 'wb') as temp_sorted:
             subprocess.run(
@@ -177,6 +177,8 @@ def samtools_bedcov(
             stderr=log_file
         ) as bedcov:
             return bedcov.communicate()[0]
+        if log:
+            log_file.close()
 
 
 def generate_coverage_values(bedcov: bytes):
