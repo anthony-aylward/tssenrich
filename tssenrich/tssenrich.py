@@ -63,8 +63,8 @@ def generate_tss(genome='hg38'):
 def generate_flanks(tss):
     for chrom, pos in tss:
         if pos >= 1_000:
-            yield chrom, pos - 1_000, pos - 900
-        yield chrom, pos + 900, pos + 1_000
+            yield chrom, pos - 1_000, pos - 900, pos
+        yield chrom, pos + 900, pos + 1_000, pos
 
 
 def flanks_bed_str(flanks):
@@ -78,8 +78,8 @@ def flanks_bed_tool(flanks_str: str):
 
     Parameters
     ----------
-    flanks
-        iterable giving the coordinates of the flanks
+    flanks_str
+        string giving input BED file
     
     Returns
     -------
