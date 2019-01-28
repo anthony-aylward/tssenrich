@@ -73,7 +73,7 @@ def generate_tss(genome='hg38'):
             yield chrom, int(tss)
 
 
-def generate_flanks(tss):
+def generate_tss_flanks(tss):
     """Generate coordinates of TSS flanks
 
     Parameters
@@ -90,10 +90,11 @@ def generate_flanks(tss):
     for chrom, pos in tss:
         if pos >= 1_000:
             yield chrom, pos - 1_000, pos - 900, pos
+        yield chrom, pos - 1, pos, pos
         yield chrom, pos + 900, pos + 1_000, pos
 
 
-def flanks_bed_str(flanks):
+def tss_flanks_bed_str(flanks):
     """Create a string object containing TSS flanks in BED format
 
     Parameters
@@ -111,7 +112,7 @@ def flanks_bed_str(flanks):
     ) + '\n'
 
 
-def flanks_bed_tool(flanks_str: str):
+def tss_flanks_bed_tool(flanks_str: str):
     """A BedTool representing the TSS flanks
 
     Parameters
@@ -129,7 +130,7 @@ def flanks_bed_tool(flanks_str: str):
 
 
 def samtools_bedcov(
-    flanks_path,
+    bed_file_path,
     bam_file_path,
     memory_gb: float = 5.0,
     threads: int = 1,
@@ -163,9 +164,72 @@ def samtools_bedcov(
             (
                 samtools_path, 'bedcov',
                 '-Q', str(mapping_quality),
-                flanks_path,
+                bed_file_path,
                 sorted_path
             ),
             stdout=subprocess.PIPE
         ) as bedcov:
             return bedcov.communicate()[0].decode()
+
+
+def parse_arguments():
+    parser = argparse.ArgumentParser(
+        description = 'calculate TSS enrichment for ATAC-seq data'
+    )
+    parser.add_argument(
+        'bam',
+        metavar='<path/to/file.bam>',
+        help='Path to input BAM file'
+    )
+    parser.add_argument(
+        '--genome',
+        choices=('hg38', 'hg19'),
+        default='hg38',
+        help='genome build [hg38]'
+    )
+    parser.add_argument(
+        '--memory',
+        metavar='<float>',
+        type=float,
+        default=5.0,
+        help='memory limit in GB [5]'
+    )
+    parser.add_argument(
+        '--processes',
+        metavar='<int>',
+        type=int,
+        default=1,
+        help='number of processes/threads to use [1]'
+    )
+    parser.add_argument(
+        '--mapping-quality',
+        metavar='<int>',
+        type=int,
+        default=0,
+        help='ignore reads with mapping quality below the given value [0]'
+    )
+    parser.add_argument(
+        '--samtools-path',
+        metavar='<path/to/samtools>',
+        default=SAMTOOLS_PATH,
+        help=f'path to an alternate samtools executable [{SAMTOOLS_PATH}]'
+    )
+    return parser.parse_args()
+
+
+def main():
+    args = parse_arguments()
+    tss_flanks = tss_flanks_bed_tool(
+        tss_flanks_bed_str(
+            generate_tss_flanks(generate_tss(genome=args.genome))
+        )
+    )
+    coverage = samtools_bedcov(
+        tss_flanks.fn,
+        args.bam,
+        memory_gb=args.float,
+        threads=args.processes,
+        mapping_quality=args.mapping_quality,
+        samtools_path=args.samtools_path
+    )
+    print(coverage.splitlines()[:10])

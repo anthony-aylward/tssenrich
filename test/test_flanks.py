@@ -1,7 +1,7 @@
 import pytest
 
 from tssenrich import (
-    generate_tss, generate_flanks, flanks_bed_str, flanks_bed_tool
+    generate_tss, generate_tss_flanks, tss_flanks_bed_str, tss_flanks_bed_tool
 )
 
 @pytest.fixture()
