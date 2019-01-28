@@ -22,5 +22,6 @@ Functions
 
 from tssenrich.tssenrich import (
     generate_tss, generate_tss_flanks, tss_flanks_bed_str, tss_flanks_bed_tool,
-    samtools_bedcov, generate_coverage_values
+    samtools_bedcov, generate_coverage_values, calculate_enrichment,
+    tss_enrichment
 )

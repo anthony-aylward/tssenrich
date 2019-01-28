@@ -217,7 +217,7 @@ def generate_coverage_values(bedcov: bytes):
     Yields
     ------
     tuple
-        tss center depth and flank depth for a tss
+        (tss_center_depth, flank_depth) per TSS
     """
 
     for tss, intervals in itertools.groupby(
@@ -236,6 +236,51 @@ def generate_coverage_values(bedcov: bytes):
             interval[4] for interval in sorted(set(intervals))
         )
         yield tss_cov, (lower_flank_cov + upper_flank_cov) / 200
+
+
+def calculate_enrichment(coverage_values):
+    """Calculate TSS enrichment value for a dataset
+
+    Parameters
+    ----------
+    coverage_values
+        iterable of tuples (tss_center_depth, flank_depth) per TSS
+    
+    Returns
+    -------
+    float
+        the TSS enrichment value
+    """
+
+    tss_depth, flank_depth = (sum(z) for z in zip(*coverage_values))
+    return tss_depth / flank_depth
+
+
+def tss_enrichment(
+    bam_file_path,
+    genome='hg38',
+    memory_gb: float = 5.0,
+    threads: int = 1,
+    mapping_quality: int = 0,
+    samtools_path: str = SAMTOOLS_PATH,
+    log_file_path=None
+):
+    tss_flanks = tss_flanks_bed_tool(
+        tss_flanks_bed_str(generate_tss_flanks(generate_tss(genome=genome)))
+    )
+    return calculate_enrichment(
+        generate_coverage_values(
+            samtools_bedcov(
+                tss_flanks.fn,
+                bam_file_path,
+                memory_gb=memory_gb,
+                threads=threads,
+                mapping_quality=mapping_quality,
+                samtools_path=samtools_path,
+                log_file_path=log_file_path
+            )
+        )
+    )
 
 
 def parse_arguments():
@@ -292,21 +337,14 @@ def parse_arguments():
 
 def main():
     args = parse_arguments()
-    tss_flanks = tss_flanks_bed_tool(
-        tss_flanks_bed_str(
-            generate_tss_flanks(generate_tss(genome=args.genome))
+    print(
+        tss_enrichment(
+            args.bam,
+            genome=args.genome,
+            memory_gb=args.memory,
+            threads=args.processes,
+            mapping_quality=args.mapping_quality,
+            samtools_path=args.samtools_path,
+            log_file_path=args.log
         )
     )
-    bedcov = samtools_bedcov(
-        tss_flanks.fn,
-        args.bam,
-        memory_gb=args.memory,
-        threads=args.processes,
-        mapping_quality=args.mapping_quality,
-        samtools_path=args.samtools_path,
-        log_file_path=args.log
-    )
-    tss_depth, flank_depth = (
-        sum(z) for z in zip(*generate_coverage_values(bedcov))
-    )
-    print(tss_depth / flank_depth)
