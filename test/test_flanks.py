@@ -6,7 +6,9 @@ from tssenrich import (
 
 @pytest.fixture()
 def flanks():
-    return flanks_bed_tool(flanks_bed_str(generate_flanks(generate_tss())))
+    return tss_flanks_bed_tool(
+        tss_flanks_bed_str(generate_tss_flanks(generate_tss()))
+    )
 
 
 def test_flanks(flanks):

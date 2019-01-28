@@ -91,8 +91,9 @@ def generate_tss_flanks(tss):
     for chrom, pos in tss:
         if pos >= 1_000:
             yield chrom, pos - 1_000, pos - 900, pos
-        yield chrom, pos - 1, pos, pos
-        yield chrom, pos + 900, pos + 1_000, pos
+        if pos >= 1:
+            yield chrom, pos - 1, pos, pos
+            yield chrom, pos + 900, pos + 1_000, pos
 
 
 def tss_flanks_bed_str(flanks):
