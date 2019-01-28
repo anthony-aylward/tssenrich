@@ -10,10 +10,18 @@
 # Imports ======================================================================
 
 import gzip
+import os
 import os.path
 import pybedtools
-import pysam
+import shutil
+import subprocess
 import tempfile
+
+
+
+# Constants ====================================================================
+
+SAMTOOLS_PATH = os.environ.get('SAMTOOLS_PATH', shutil.which('samtools'))
 
 
 
@@ -120,12 +128,42 @@ def flanks_bed_tool(flanks_str: str):
     return pybedtools.BedTool(flanks_str, from_string=True).sort()
 
 
-def bedcov(flanks_path, bam_file_path, mapping_quality: int = 0):
+def samtools_bedcov(
+    flanks_path,
+    bam_file_path,
+    memory_gb: float = 5.0,
+    threads: int = 1,
+    mapping_quality: int = 0,
+    samtools_path: str = SAMTOOLS_PATH
+):
+    
+    if not bedtools_path:
+        raise MissingBEDToolsError(
+            '''bedtools was not found! Please provide the `bedtools_path`
+            parameter to bedtools_intersect(), or set the `BEDTOOLS_PATH`
+            environment variable, or make sure `bedtools` is installed and
+            can be found via the `PATH` environment variable.
+            '''
+        )
+
     with tempfile.TemporaryDirectory() as temp_dir_name:
         sorted_path = os.path.join(temp_dir_name, 'sorted.bam')
-        pysam.sort('-o', sorted_path, bam_file_path)
-        return pysam.bedcov(
-            '-Q', str(mapping_quality),
-            flanks_path,
-            sorted_path
-        )
+        with open(sorted_path, 'wb') as f:
+            subprocess.run(
+                (
+                    samtools_path, 'sort',
+                    '-m', '{}M'.format(int(1024 / threads * memory_gb)),
+                    '-@', str(threads),
+                    bam_file_path
+                ),
+                stdout=f
+            )
+        with subprocess.Popen(
+            (
+                samtools_path, 'bedcov',
+                '-Q', str(mapping_quality),
+                flanks_path,
+                sorted_path
+            )
+        ) as bedcov:
+            return bedcov.communicate()[0].decode()
