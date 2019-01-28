@@ -164,6 +164,7 @@ def samtools_bedcov(
                 '-Q', str(mapping_quality),
                 flanks_path,
                 sorted_path
-            )
+            ),
+            stdout=subprocess.PIPE
         ) as bedcov:
             return bedcov.communicate()[0].decode()
