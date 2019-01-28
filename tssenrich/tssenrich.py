@@ -233,10 +233,10 @@ def generate_coverage_values(bedcov: bytes):
         key=lambda interval: (interval[0], interval[3])
     ):
         print(tss)
-        intervals = tuple(intervals)
+        intervals = sorted(set(intervals))
         print(intervals)
-        lower_flank_cov, tss_cov, upper_flank_cov = sorted(
-            set(interval[4] for interval in intervals)
+        lower_flank_cov, tss_cov, upper_flank_cov = (
+            interval[4] for interval in intervals
         )
         yield tss_cov, (lower_flank_cov + upper_flank_cov) / 200
 
