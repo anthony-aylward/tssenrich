@@ -158,6 +158,7 @@ def samtools_bedcov(
                 ),
                 stdout=f
             )
+            subprocess.run((samtools_path, 'index', sorted_path))
         with subprocess.Popen(
             (
                 samtools_path, 'bedcov',
