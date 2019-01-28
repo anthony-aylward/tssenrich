@@ -135,7 +135,7 @@ def tss_flanks_bed_tool(flanks_str: str):
 def samtools_bedcov(
     bed_file_path,
     bam_file_path,
-    memory_gb: float = 5.0,
+    memory_gb: float = 1.0,
     threads: int = 1,
     mapping_quality: int = 0,
     samtools_path: str = SAMTOOLS_PATH,
@@ -259,7 +259,7 @@ def calculate_enrichment(coverage_values):
 def tss_enrichment(
     bam_file_path,
     genome='hg38',
-    memory_gb: float = 5.0,
+    memory_gb: float = 1.0,
     threads: int = 1,
     mapping_quality: int = 0,
     samtools_path: str = SAMTOOLS_PATH,
@@ -304,7 +304,7 @@ def parse_arguments():
         '--memory',
         metavar='<float>',
         type=float,
-        default=2.0,
+        default=1.0,
         help='memory limit in GB [2]'
     )
     parser.add_argument(
