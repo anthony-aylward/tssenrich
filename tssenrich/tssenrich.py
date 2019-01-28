@@ -137,7 +137,8 @@ def samtools_bedcov(
     memory_gb: float = 5.0,
     threads: int = 1,
     mapping_quality: int = 0,
-    samtools_path: str = SAMTOOLS_PATH
+    samtools_path: str = SAMTOOLS_PATH,
+    log=None
 ):
     
     if not samtools_path:
@@ -149,9 +150,11 @@ def samtools_bedcov(
             '''
         )
 
-    with tempfile.TemporaryDirectory() as temp_dir_name:
+    with open(log, 'wb') as log_file, tempfile.TemporaryDirectory() as (
+        temp_dir_name
+    ):
         sorted_path = os.path.join(temp_dir_name, 'sorted.bam')
-        with open(sorted_path, 'wb') as f:
+        with open(sorted_path, 'wb') as temp_sorted:
             subprocess.run(
                 (
                     samtools_path, 'sort',
@@ -159,7 +162,8 @@ def samtools_bedcov(
                     '-@', str(threads),
                     bam_file_path
                 ),
-                stdout=f
+                stdout=temp_sorted,
+                stderr=log_file
             )
             subprocess.run((samtools_path, 'index', sorted_path))
         with subprocess.Popen(
@@ -169,7 +173,8 @@ def samtools_bedcov(
                 bed_file_path,
                 sorted_path
             ),
-            stdout=subprocess.PIPE
+            stdout=subprocess.PIPE,
+            stderr=log_file
         ) as bedcov:
             return bedcov.communicate()[0].decode()
 
@@ -216,6 +221,11 @@ def parse_arguments():
         default=SAMTOOLS_PATH,
         help=f'path to an alternate samtools executable [{SAMTOOLS_PATH}]'
     )
+    parser.add_argument(
+        '--log',
+        metavar='<path/to/log.txt>',
+        help='path to log file'
+    )
     return parser.parse_args()
 
 
@@ -232,6 +242,7 @@ def main():
         memory_gb=args.memory,
         threads=args.processes,
         mapping_quality=args.mapping_quality,
-        samtools_path=args.samtools_path
+        samtools_path=args.samtools_path,
+        log=args.log
     )
     print(coverage.splitlines()[:10])
