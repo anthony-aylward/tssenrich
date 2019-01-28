@@ -152,7 +152,7 @@ def samtools_bedcov(
     memory_gb : float
         memory limit in gigabytes
     threads : int
-        number of threads to use
+        number of threads to use for sorting
     mapping_quality : int
         ignore reads with mapping quality below this value [0]
     samtools_path : str
@@ -265,6 +265,31 @@ def tss_enrichment(
     samtools_path: str = SAMTOOLS_PATH,
     log_file_path=None
 ):
+    """Calculate TSS enrichment from ATAC-seq data
+    
+    Parameters
+    ----------
+    bam_file_path : str
+        path to input BAM file
+    genome : str
+        genome build to use (must be 'hg38' or 'hg19') [hg38]
+    memory_gb : float
+        memory limit in gigabytes [1.0]
+    threads : int
+        number of threads to use for sorting [1]
+    mapping_quality : int
+        ignore reads with mapping quality below this value [0]
+    samtools_path : str
+        path to the samtools executable
+    log_file_path
+        path to a log file
+    
+    Returns
+    -------
+    float
+        the TSS enrichment value
+    """
+    
     tss_flanks = tss_flanks_bed_tool(
         tss_flanks_bed_str(generate_tss_flanks(generate_tss(genome=genome)))
     )
