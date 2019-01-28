@@ -304,8 +304,8 @@ def parse_arguments():
         '--memory',
         metavar='<float>',
         type=float,
-        default=5.0,
-        help='memory limit in GB [5]'
+        default=2.0,
+        help='memory limit in GB [2]'
     )
     parser.add_argument(
         '--processes',
