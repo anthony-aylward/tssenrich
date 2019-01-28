@@ -138,9 +138,33 @@ def samtools_bedcov(
     threads: int = 1,
     mapping_quality: int = 0,
     samtools_path: str = SAMTOOLS_PATH,
-    log=None
+    log_file_path=None
 ):
+    """Apply samtools bedcov to a bed file & a bam file
+
+    Parameters
+    ----------
+    bed_file_path : str
+        path to a BED file
+    bam_file_path : str
+        path to a BAM file
+    memory_gb : float
+        memory limit in gigabytes
+    threads : int
+        number of threads to use
+    mapping_quality : int
+        ignore reads with mapping quality below this value [0]
+    samtools_path : str
+        path to the samtools executable
+    log_file_path
+        path to a log file
     
+    Returns
+    -------
+    bytes
+        the output of samtools bedcov
+    """
+
     if not samtools_path:
         raise MissingSAMToolsError(
             '''samtools was not found! Please provide the `samtools_path`
@@ -150,8 +174,8 @@ def samtools_bedcov(
             '''
         )
     
-    if log:
-        log_file = open(log, 'wb')
+    if log_file_path:
+        log_file = open(log_file_path, 'wb')
     with tempfile.TemporaryDirectory() as temp_dir_name:
         sorted_path = os.path.join(temp_dir_name, 'sorted.bam')
         with open(sorted_path, 'wb') as temp_sorted:
@@ -177,12 +201,24 @@ def samtools_bedcov(
             stderr=log_file
         ) as bedcov:
             return bedcov.communicate()[0]
-        if log:
+        if log_file_path:
             log_file.close()
 
 
 def generate_coverage_values(bedcov: bytes):
-    for _, intervals in itertools.groupby(
+    """Generate coverage values from the output of samtools bedcov
+
+    Parameters
+    ----------
+    bedcov : bytes
+        output from samtools bedcov
+    
+    Yields
+    ------
+    tuple
+        tss center depth and flank depth for a tss
+    """
+    for tss, intervals in itertools.groupby(
         sorted(
             (
                 (chrom, int(start), int(end), int(tss), int(cov))
@@ -194,6 +230,8 @@ def generate_coverage_values(bedcov: bytes):
         ),
         key=lambda interval: (interval[0], interval[3])
     ):
+        print(tss)
+        print(intervals)
         lower_flank_cov, tss_cov, upper_flank_cov = tuple(
             interval[4] for interval in intervals
         )
