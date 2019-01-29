@@ -19,6 +19,9 @@ import shutil
 import subprocess
 import tempfile
 
+from functools import partial
+from multiprocessing import Pool
+
 
 
 # Constants ====================================================================
@@ -322,6 +325,7 @@ def parse_arguments():
     parser.add_argument(
         'bam',
         metavar='<path/to/file.bam>',
+        nargs='+',
         help='Path to input BAM file'
     )
     parser.add_argument(
@@ -372,15 +376,20 @@ def parse_arguments():
 
 def main():
     args = parse_arguments()
-    print(
-        tss_enrichment(
-            args.bam,
-            genome=args.genome,
-            memory_gb=args.memory,
-            threads=args.processes,
-            mapping_quality=args.mapping_quality,
-            samtools_path=args.samtools_path,
-            log_file_path=args.log,
-            temp_file_dir=args.tmp_dir
+    n_bam = len(args.bam)
+    with Pool(processes=min(args.processes, n_bam)) as pool:
+        values = pool.map(
+            partial(
+                tss_enrichment,
+                genome=args.genome,
+                memory_gb=args.memory / n_bam,
+                threads=int(args.processes / n_bam),
+                mapping_quality=args.mapping_quality,
+                samtools_path=args.samtools_path,
+                log_file_path=args.log,
+                temp_file_dir=args.tmp_dir
+            ),
+            args.bam
         )
-    )
+    for value in values:
+        print(value)
