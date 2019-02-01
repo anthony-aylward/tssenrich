@@ -79,7 +79,7 @@ def generate_tss(genome='hg38'):
             yield chrom, int(tss)
 
 
-def generate_tss_flanks(tss):
+def generate_tss_flanks(tss, flank_distance=1_000, flank_size=100):
     """Generate coordinates of TSS flanks
 
     Parameters
@@ -94,10 +94,20 @@ def generate_tss_flanks(tss):
         chrom, flank_start, flank_end, tss_pos
     """
     for chrom, pos in tss:
-        if pos >= 1_000:
-            yield chrom, pos - 1_000, pos - 900, pos
+        if pos >= flank_distance:
+            yield (
+                chrom,
+                pos - flank_distance,
+                pos - flank_distance + flank_size,
+                pos
+            )
             yield chrom, pos - 1, pos, pos
-            yield chrom, pos + 900, pos + 1_000, pos
+            yield (
+                chrom,
+                pos + flank_distance - flank_size,
+                pos + flank_distance,
+                pos
+            )
 
 
 def tss_flanks_bed_str(flanks):
@@ -297,7 +307,13 @@ def tss_enrichment(
     """
     
     tss_flanks = tss_flanks_bed_tool(
-        tss_flanks_bed_str(generate_tss_flanks(generate_tss(genome=genome))),
+        tss_flanks_bed_str(
+            generate_tss_flanks(
+                generate_tss(genome=genome),
+                flank_distance=args.flank_distance,
+                flank_size=args.flank_size
+            )
+        ),
         temp_file_dir=temp_file_dir
     )
     return calculate_enrichment(
@@ -370,6 +386,18 @@ def parse_arguments():
         '--tmp-dir',
         metavar='<temp/file/dir/>',
         help='directory to use for temporary files'
+    )
+    parser.add_argument(
+        '--flank-distance',
+        metavar='<int>',
+        default=1_000,
+        help='distance from tss of outer ends of flanks'
+    )
+    parser.add_argument(
+        '--flank-size',
+        metavar='<int>',
+        default=100,
+        help='size of flanks (for determining average depth)'
     )
     return parser.parse_args()
 
