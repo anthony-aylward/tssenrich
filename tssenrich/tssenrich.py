@@ -279,7 +279,9 @@ def tss_enrichment(
     mapping_quality: int = 0,
     samtools_path: str = SAMTOOLS_PATH,
     log_file_path=None,
-    temp_file_dir=None
+    temp_file_dir=None,
+    flank_distance=1_000,
+    flank_size=100
 ):
     """Calculate TSS enrichment from ATAC-seq data
     
@@ -310,8 +312,8 @@ def tss_enrichment(
         tss_flanks_bed_str(
             generate_tss_flanks(
                 generate_tss(genome=genome),
-                flank_distance=args.flank_distance,
-                flank_size=args.flank_size
+                flank_distance=flank_distance,
+                flank_size=flank_size
             )
         ),
         temp_file_dir=temp_file_dir
@@ -415,7 +417,9 @@ def main():
                 mapping_quality=args.mapping_quality,
                 samtools_path=args.samtools_path,
                 log_file_path=args.log,
-                temp_file_dir=args.tmp_dir
+                temp_file_dir=args.tmp_dir,
+                flank_distance=args.flank_distance,
+                flank_size=args.flank_size
             ),
             args.bam
         )
