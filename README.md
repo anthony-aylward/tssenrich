@@ -1,6 +1,6 @@
 # tssenrich
 
-Calculate [TSS enrichment](https://www.encodeproject.org/data-standards/terms/#enrichment) for ATAC-seq data. (see also the [ENCODE standards](https://www.encodeproject.org/atac-seq/)
+Calculate [TSS enrichment](https://www.encodeproject.org/data-standards/terms/#enrichment) for ATAC-seq data. (see also the [ENCODE standards](https://www.encodeproject.org/atac-seq/))
 
 ## Installation
 ```
