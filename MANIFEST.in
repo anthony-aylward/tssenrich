@@ -2,3 +2,5 @@ include tssenrich/hg38.refFlat.txt.gz
 include tssenrich/hg38.refFlat.sql
 include tssenrich/hg19.refFlat.txt.gz
 include tssenrich/hg19.refFlat.sql
+include tssenrich/mm10.refFlat.txt.gz
+include tssenrich/mm10.refFlat.sql
