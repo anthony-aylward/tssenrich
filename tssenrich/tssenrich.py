@@ -360,7 +360,7 @@ def parse_arguments():
     )
     parser.add_argument(
         '--genome',
-        choices=('hg38', 'hg19'),
+        choices=('hg38', 'hg19', 'mm10'),
         default='hg38',
         help='genome build [hg38]'
     )
