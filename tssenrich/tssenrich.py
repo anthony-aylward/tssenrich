@@ -391,13 +391,13 @@ def parse_arguments():
         '--flank-distance',
         metavar='<int>',
         default=1_000,
-        help='distance from tss of outer ends of flanks'
+        help='distance from tss of outer ends of flanks [1000]'
     )
     parser.add_argument(
         '--flank-size',
         metavar='<int>',
         default=100,
-        help='size of flanks (for determining average depth)'
+        help='size of flanks (for determining average depth) [100]'
     )
     return parser.parse_args()
 
