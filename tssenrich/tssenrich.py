@@ -79,13 +79,21 @@ def generate_tss(genome='hg38'):
             yield chrom, int(tss)
 
 
-def generate_tss_flanks(tss, flank_distance=1_000, flank_size=100):
+def generate_tss_flanks(
+    tss,
+    flank_distance: int = 1_000,
+    flank_size: int = 100
+):
     """Generate coordinates of TSS flanks
 
     Parameters
     ----------
     tss
         an iterable containing coordinates of TSS's
+    flank_distance : int
+        distance from tss of outer ends of flanks
+    flank_size : int
+        size of flanks (for determining average depth)
 
     Yields
     ------
@@ -135,6 +143,8 @@ def tss_flanks_bed_tool(flanks_str: str, temp_file_dir=None):
     ----------
     flanks_str
         string giving input BED file
+    temp_file_dir
+        directory to use for temporary files
 
     Returns
     -------
@@ -174,6 +184,8 @@ def samtools_bedcov(
         path to the samtools executable
     log_file_path
         path to a log file
+    temp_file_dir
+        directory to use for temporary files
     
     Returns
     -------
@@ -190,8 +202,7 @@ def samtools_bedcov(
             '''
         )
     
-    if log_file_path:
-        log_file = open(log_file_path, 'wb')
+    log_file = open(log_file_path, 'wb') if log_file_path else None
     with tempfile.TemporaryDirectory(dir=temp_file_dir) as temp_dir_name:
         sorted_path = os.path.join(temp_dir_name, 'sorted.bam')
         with open(sorted_path, 'wb') as temp_sorted:
@@ -280,8 +291,8 @@ def tss_enrichment(
     samtools_path: str = SAMTOOLS_PATH,
     log_file_path=None,
     temp_file_dir=None,
-    flank_distance=1_000,
-    flank_size=100
+    flank_distance: int = 1_000,
+    flank_size: int = 100
 ):
     """Calculate TSS enrichment from ATAC-seq data
     
