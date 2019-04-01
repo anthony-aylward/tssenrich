@@ -12,6 +12,7 @@
 import argparse
 import gzip
 import itertools
+import math
 import os
 import os.path
 import pybedtools
@@ -426,7 +427,7 @@ def main():
                 tss_enrichment,
                 genome=args.genome,
                 memory_gb=args.memory / n_bam,
-                threads=int(args.processes / n_bam),
+                threads=max(1, math.floor(args.processes / n_bam)),
                 mapping_quality=args.mapping_quality,
                 samtools_path=args.samtools_path,
                 log_file_path=args.log,
