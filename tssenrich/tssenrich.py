@@ -137,14 +137,14 @@ def tss_flanks_bed_str(flanks):
     ) + '\n'
 
 
-def tss_flanks_bed_tool(flanks_str: str, temp_file_dir=None):
+def tss_flanks_bed_tool(flanks_str: str, temp_dir=None):
     """A BedTool representing the TSS flanks
 
     Parameters
     ----------
     flanks_str
         string giving input BED file
-    temp_file_dir
+    temp_dir
         directory to use for temporary files
 
     Returns
@@ -153,7 +153,7 @@ def tss_flanks_bed_tool(flanks_str: str, temp_file_dir=None):
         the TSS flanks
     """
 
-    pybedtools.set_tempdir(temp_file_dir if temp_file_dir else '/tmp')
+    pybedtools.set_tempdir(temp_dir if temp_dir else '/tmp')
     return pybedtools.BedTool(flanks_str, from_string=True).sort()
 
 
@@ -165,7 +165,7 @@ def samtools_bedcov(
     mapping_quality: int = 0,
     samtools_path: str = SAMTOOLS_PATH,
     log_file_path=None,
-    temp_file_dir=None
+    temp_dir=None
 ):
     """Apply samtools bedcov to a bed file & a bam file
 
@@ -185,7 +185,7 @@ def samtools_bedcov(
         path to the samtools executable
     log_file_path
         path to a log file
-    temp_file_dir
+    temp_dir
         directory to use for temporary files
     
     Returns
@@ -204,7 +204,7 @@ def samtools_bedcov(
         )
     
     log_file = open(log_file_path, 'wb') if log_file_path else None
-    with tempfile.TemporaryDirectory(dir=temp_file_dir) as temp_dir_name:
+    with tempfile.TemporaryDirectory(dir=temp_dir) as temp_dir_name:
         sorted_path = os.path.join(temp_dir_name, 'sorted.bam')
         with open(sorted_path, 'wb') as temp_sorted:
             subprocess.run(
@@ -212,6 +212,7 @@ def samtools_bedcov(
                     samtools_path, 'sort',
                     '-m', '{}M'.format(int(1024 / threads * memory_gb)),
                     '-@', str(threads),
+                    '-T', str(temp_dir or tempfile.gettempdir()),
                     bam_file_path
                 ),
                 stdout=temp_sorted,
@@ -291,7 +292,7 @@ def tss_enrichment(
     mapping_quality: int = 0,
     samtools_path: str = SAMTOOLS_PATH,
     log_file_path=None,
-    temp_file_dir=None,
+    temp_dir=None,
     flank_distance: int = 1_000,
     flank_size: int = 100
 ):
@@ -328,7 +329,7 @@ def tss_enrichment(
                 flank_size=flank_size
             )
         ),
-        temp_file_dir=temp_file_dir
+        temp_dir=temp_dir
     )
     return calculate_enrichment(
         generate_coverage_values(
@@ -340,7 +341,7 @@ def tss_enrichment(
                 mapping_quality=mapping_quality,
                 samtools_path=samtools_path,
                 log_file_path=log_file_path,
-                temp_file_dir=temp_file_dir
+                temp_dir=temp_dir
             )
         )
     )
@@ -429,7 +430,7 @@ def main():
                 mapping_quality=args.mapping_quality,
                 samtools_path=args.samtools_path,
                 log_file_path=args.log,
-                temp_file_dir=args.tmp_dir,
+                temp_dir=args.tmp_dir,
                 flank_distance=args.flank_distance,
                 flank_size=args.flank_size
             ),
