@@ -367,6 +367,11 @@ def parse_arguments():
         help='genome build [hg38]'
     )
     parser.add_argument(
+        '--names',
+        action='store_true',
+        help='include sample names in output'
+    )
+    parser.add_argument(
         '--memory',
         metavar='<float>',
         type=float,
@@ -437,5 +442,8 @@ def main():
             ),
             args.bam
         )
-    for value in values:
-        print(value)
+    for bam, value in zip(args.bam, values):
+        if args.names:
+            print('\t'.join((os.path.basename(bam)[:-4], value)))
+        else:
+            print(value)
