@@ -444,6 +444,6 @@ def main():
         )
     for bam, value in zip(args.bam, values):
         if args.names:
-            print(f'{os.path.basename(bam)[:-4]}\t{value}')))
+            print(f'{os.path.basename(bam)[:-4]}\t{value}')
         else:
             print(value)
